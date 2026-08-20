@@ -1,5 +1,8 @@
+import { TopBar } from "@/components/TopBar";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
+import { AboutUs } from "@/components/AboutUs";
+import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { VehicleCatalog } from "@/components/VehicleCatalog";
 import { Footer } from "@/components/Footer";
 import { TELEGRAM_USERNAME } from "@/lib/config";
@@ -16,10 +19,13 @@ export default async function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <TopBar />
       <Header />
       <main className="flex-1">
         <Hero />
         <VehicleCatalog vehicles={vehicles} telegramHandle={TELEGRAM_USERNAME} />
+        <AboutUs />
+        <WhyChooseUs />
       </main>
       <Footer />
     </div>
