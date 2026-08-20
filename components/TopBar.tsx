@@ -1,9 +1,5 @@
 import { Clock, MapPin, Phone } from "lucide-react";
-
-const LOCATION = "Bole Medhanialem, Addis Ababa, Ethiopia";
-const HOURS = "Mon – Sat: 8:00 AM – 8:00 PM";
-const PHONE = "+251 91 123 4567";
-const PHONE_HREF = "tel:+251911234567";
+import { siteConfig } from "@/config/siteConfig";
 
 export function TopBar() {
   return (
@@ -11,18 +7,18 @@ export function TopBar() {
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-1 px-4 py-1.5 text-[11px] sm:text-xs lg:justify-between">
         <span className="inline-flex items-center gap-1.5">
           <MapPin className="h-3.5 w-3.5 text-amber-400" aria-hidden />
-          {LOCATION}
+          {siteConfig.location}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <Clock className="h-3.5 w-3.5 text-amber-400" aria-hidden />
-          {HOURS}
+          {siteConfig.workingHours}
         </span>
         <a
-          href={PHONE_HREF}
+          href={siteConfig.phoneHref}
           className="inline-flex items-center gap-1.5 transition hover:text-amber-400"
         >
           <Phone className="h-3.5 w-3.5 text-amber-400" aria-hidden />
-          {PHONE}
+          {siteConfig.phone}
         </a>
       </div>
     </div>

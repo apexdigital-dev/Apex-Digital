@@ -9,8 +9,14 @@
 // the seeded catalog — the site must render fully without Supabase, and must
 // never crash because of it.
 
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./config";
 import { CATEGORIES, type Category, type Transmission, type Vehicle } from "./vehicles";
+
+// Supabase credentials (env-driven, no built-in defaults). When neither URL nor
+// ANON key is set, `supabaseConfigured` is false and every fetch/write below
+// short-circuits to null/false so the site renders the seeded catalog.
+export const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").trim();
+export const SUPABASE_ANON_KEY = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "").trim();
+export const supabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
 interface VehicleRow {
   id: string;

@@ -1,5 +1,5 @@
 import { Lock } from "lucide-react";
-import { AGENCY_NAME } from "@/lib/config";
+import { siteConfig } from "@/config/siteConfig";
 import { passcodeConfigured } from "@/lib/auth";
 import { LoginForm } from "./LoginForm";
 
@@ -16,7 +16,7 @@ export default function AdminLoginPage() {
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-400/15 text-amber-400">
             <Lock className="h-6 w-6" />
           </span>
-          <h1 className="text-xl font-bold text-white">{AGENCY_NAME} — Admin</h1>
+          <h1 className="text-xl font-bold text-white">{siteConfig.companyName} — Admin</h1>
           <p className="text-sm text-zinc-400">Sign in to manage your fleet</p>
         </div>
 

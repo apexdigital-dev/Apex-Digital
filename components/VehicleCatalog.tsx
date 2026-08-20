@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
 import { CATEGORIES, type Category, type Vehicle } from "@/lib/vehicles";
-import { supabaseConfigured } from "@/lib/config";
+import { supabaseConfigured } from "@/lib/supabase";
 import { mergeLocalOverrides } from "@/lib/local-store";
+import { siteConfig } from "@/config/siteConfig";
 import { VehicleCard } from "./VehicleCard";
 
 const ALL = "All" as const;
@@ -12,10 +13,10 @@ type Filter = Category | typeof ALL;
 const FILTERS: Filter[] = [ALL, ...CATEGORIES];
 
 export function VehicleCatalog({
-  vehicles,
+  vehicles = siteConfig.carCatalog,
   telegramHandle,
 }: {
-  vehicles: Vehicle[];
+  vehicles?: Vehicle[];
   telegramHandle: string;
 }) {
   const [query, setQuery] = useState("");

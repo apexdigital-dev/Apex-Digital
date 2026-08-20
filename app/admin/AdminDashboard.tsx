@@ -10,7 +10,7 @@ import {
   LogOut,
   Plus,
 } from "lucide-react";
-import { AGENCY_NAME, supabaseConfigured } from "@/lib/config";
+import { siteConfig } from "@/config/siteConfig";
 import {
   CATEGORIES,
   SEED_VEHICLES,
@@ -23,6 +23,7 @@ import {
 import {
   fetchVehiclesFromSupabase,
   insertVehicleToSupabase,
+  supabaseConfigured,
   upsertVehicleToSupabase,
 } from "@/lib/supabase";
 import {
@@ -260,7 +261,7 @@ export function AdminDashboard() {
               <CarFront className="h-5 w-5" />
             </span>
             <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-white">{AGENCY_NAME}</p>
+              <p className="truncate text-sm font-bold text-white">{siteConfig.companyName}</p>
               <p className="text-[11px] text-zinc-500">Admin dashboard</p>
             </div>
           </div>

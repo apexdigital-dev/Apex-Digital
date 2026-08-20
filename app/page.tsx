@@ -5,17 +5,17 @@ import { AboutUs } from "@/components/AboutUs";
 import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { VehicleCatalog } from "@/components/VehicleCatalog";
 import { Footer } from "@/components/Footer";
-import { TELEGRAM_USERNAME } from "@/lib/config";
+import { siteConfig } from "@/config/siteConfig";
 import { fetchVehiclesFromSupabase } from "@/lib/supabase";
-import { SEED_VEHICLES } from "@/lib/vehicles";
 
-// Render per request: env changes (agency name, Telegram handle, Supabase
-// credentials) take effect without a rebuild, and SSR always includes the fleet.
+// Render per request: Supabase credentials / admin data changes take effect
+// without a rebuild, and SSR always includes the fleet.
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  // Supabase when configured, seeded catalog otherwise. Never throws.
-  const vehicles = (await fetchVehiclesFromSupabase()) ?? SEED_VEHICLES;
+  // Supabase when configured, seeded catalog (from siteConfig) otherwise.
+  // Never throws.
+  const vehicles = (await fetchVehiclesFromSupabase()) ?? siteConfig.carCatalog;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -23,7 +23,7 @@ export default async function HomePage() {
       <Header />
       <main className="flex-1">
         <Hero />
-        <VehicleCatalog vehicles={vehicles} telegramHandle={TELEGRAM_USERNAME} />
+        <VehicleCatalog vehicles={vehicles} telegramHandle={siteConfig.telegramUsername} />
         <AboutUs />
         <WhyChooseUs />
       </main>
