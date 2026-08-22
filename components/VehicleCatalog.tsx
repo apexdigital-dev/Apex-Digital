@@ -1,106 +1,121 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Search, X } from "lucide-react";
-import { CATEGORIES, type Category, type Vehicle } from "@/lib/vehicles";
-import { supabaseConfigured } from "@/lib/supabase";
-import { mergeLocalOverrides } from "@/lib/local-store";
-import { siteConfig } from "@/config/siteConfig";
-import { VehicleCard } from "./VehicleCard";
+import React, { useState } from "react";
+import { Vehicle } from "@/config/siteConfig";
 
-const ALL = "All" as const;
-type Filter = Category | typeof ALL;
-const FILTERS: Filter[] = [ALL, ...CATEGORIES];
+interface VehicleCatalogProps {
+  initialVehicles: Vehicle[];
+}
 
-export function VehicleCatalog({
-  vehicles = siteConfig.carCatalog,
-  telegramHandle,
-}: {
-  vehicles?: Vehicle[];
-  telegramHandle: string;
-}) {
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<Filter>(ALL);
+export function VehicleCatalog({ initialVehicles }: VehicleCatalogProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // When Supabase is absent, layer the owner's admin edits (localStorage
-  // overrides) on top of the server-rendered catalog. Applied after mount so
-  // the first client render matches SSR — no hydration mismatch.
-  const [localVehicles, setLocalVehicles] = useState<Vehicle[] | null>(null);
-  useEffect(() => {
-    if (supabaseConfigured) return;
-    setLocalVehicles(mergeLocalOverrides(vehicles));
-  }, [vehicles]);
+  const categories = ["All", "SUVs & 4WD", "Sedans & Economy", "Luxury & Wedding"];
 
-  const effectiveVehicles = localVehicles ?? vehicles;
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return effectiveVehicles.filter((v) => {
-      if (filter !== ALL && v.category !== filter) return false;
-      if (q && !v.title.toLowerCase().includes(q)) return false;
-      return true;
-    });
-  }, [effectiveVehicles, query, filter]);
+  const filteredVehicles = initialVehicles.filter((car) => {
+    const matchesCategory =
+      selectedCategory === "All" || car.category === selectedCategory;
+    const matchesSearch =
+      car.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      car.category.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-8">
-      {/* Quick search (filters by title) */}
-      <div className="relative mx-auto max-w-xl">
-        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+    <div className="space-y-8">
+      {/* Search Bar */}
+      <div className="max-w-xl mx-auto relative">
         <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search cars… e.g. Land Cruiser"
-          aria-label="Search cars"
-          className="w-full rounded-xl border border-zinc-800 bg-zinc-900 py-3 pl-10 pr-9 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400/20"
+          type="text"
+          placeholder="Search cars... e.g. Land Cruiser"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full bg-zinc-900/90 text-white placeholder-zinc-500 text-sm rounded-2xl px-5 py-4 border border-zinc-800 focus:outline-none focus:border-amber-500/50 backdrop-blur-xl transition-all shadow-inner"
         />
-        {query && (
-          <button
-            type="button"
-            onClick={() => setQuery("")}
-            aria-label="Clear search"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 transition hover:text-white"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
       </div>
 
-      {/* Category tabs: All | SUVs & 4WD | Sedans & Economy | Luxury & Wedding */}
-      <div className="no-scrollbar -mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:justify-center sm:px-0">
-        {FILTERS.map((c) => (
+      {/* Category Filter Buttons */}
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {categories.map((cat) => (
           <button
-            key={c}
-            type="button"
-            onClick={() => setFilter(c)}
-            aria-pressed={filter === c}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
-              filter === c
-                ? "bg-amber-400 text-zinc-950"
-                : "border border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-zinc-700 hover:text-white"
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all duration-200 ${
+              selectedCategory === cat
+                ? "bg-amber-500 text-zinc-950 shadow-lg shadow-amber-500/20"
+                : "bg-zinc-900/80 text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-700"
             }`}
           >
-            {c}
+            {cat}
           </button>
         ))}
       </div>
 
-      <p className="mt-4 text-center text-xs text-zinc-500">
-        {filtered.length} of {effectiveVehicles.length} vehicles
-      </p>
+      {/* Vehicles Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+        {filteredVehicles.map((car) => (
+          <div
+            key={car.id}
+            className="group relative rounded-3xl bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/80 hover:border-amber-500/40 transition-all duration-300 overflow-hidden flex flex-col justify-between shadow-2xl"
+          >
+            <div>
+              {/* Image Container */}
+              <div className="relative h-52 w-full overflow-hidden bg-zinc-950/80">
+                <img
+                  src={car.imageUrl}
+                  alt={car.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <span
+                  className={`absolute top-4 left-4 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-md border ${
+                    car.available
+                      ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                      : "bg-rose-500/20 text-rose-400 border-rose-500/30"
+                  }`}
+                >
+                  {car.available ? "Available Now" : "Booked"}
+                </span>
+              </div>
 
-      {filtered.length === 0 ? (
-        <p className="mt-10 text-center text-sm text-zinc-500">
-          No vehicles match your search.
-        </p>
-      ) : (
-        <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((v) => (
-            <VehicleCard key={v.id} vehicle={v} telegramHandle={telegramHandle} />
-          ))}
-        </div>
-      )}
-    </section>
+              {/* Info Block */}
+              <div className="p-6">
+                <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+                  {car.category}
+                </span>
+                <h3 className="text-xl font-extrabold text-white mt-1 tracking-tight">
+                  {car.title}
+                </h3>
+                <p className="text-xs text-zinc-400 mt-2 line-clamp-2">
+                  {car.description}
+                </p>
+              </div>
+            </div>
+
+            {/* Price & Booking Footer */}
+            <div className="px-6 pb-6 pt-2 flex items-center justify-between border-t border-zinc-800/60 mt-auto">
+              <div>
+                <span className="text-xl font-black text-white">
+                  {car.priceEtb.toLocaleString()}
+                </span>
+                <span className="text-[10px] text-zinc-500 ml-1 font-semibold">
+                  ETB / day
+                </span>
+              </div>
+              <a
+                href={`https://t.me/addiscarrentals?text=Hello,%20I%20want%20to%20rent%20the%20${encodeURIComponent(
+                  car.title
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs px-4 py-2.5 rounded-xl transition-all shadow-md"
+              >
+                Book
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
